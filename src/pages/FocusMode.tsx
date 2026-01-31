@@ -3,6 +3,8 @@ import { PomodoroTimer } from "@/components/PomodoroTimer";
 import { usePomodoroSessions } from "@/hooks/usePomodoroSessions";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { FocusMonitor } from "@/components/FocusMonitor";
+
 export default function FocusMode() {
   const { sessions } = usePomodoroSessions();
   const todaySessions = sessions.filter(
@@ -22,6 +24,9 @@ export default function FocusMode() {
         </div>
 
         <PomodoroTimer />
+
+        {/* Webcam Focus Monitor */}
+        <FocusMonitor />
 
         {/* Tips Card */}
         <Card className="border-study-purple/30 bg-gradient-to-br from-study-purple/5 to-study-pink/5">

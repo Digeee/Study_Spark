@@ -7,12 +7,12 @@ interface SubjectChartProps {
 }
 
 const COLORS = [
-  "hsl(262, 83%, 58%)", // purple
-  "hsl(217, 91%, 60%)", // blue
-  "hsl(330, 85%, 60%)", // pink
-  "hsl(25, 95%, 53%)",  // orange
-  "hsl(142, 71%, 45%)", // green
-  "hsl(187, 85%, 53%)", // cyan
+  "hsl(145, 63%, 49%)",
+  "hsl(20, 100%, 65%)",
+  "hsl(217, 91%, 60%)",
+  "hsl(187, 85%, 53%)",
+  "hsl(330, 85%, 60%)",
+  "hsl(35, 91%, 54%)",
 ];
 
 export function SubjectChart({ sessions }: SubjectChartProps) {

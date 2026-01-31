@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Clock, Timer } from "lucide-react";
+import { CalendarIcon, Clock, Timer, WandSparkles } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { suggestGoal } from "@/integrations/ai/huggingface";
 
 const commonSubjects = [
   "Mathematics",
@@ -33,6 +34,7 @@ export function StudyForm() {
   const [goal, setGoal] = useState("");
   const [date, setDate] = useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
 
   // Get recent subjects for quick selection
   const recentSubjects = [...new Set(sessions.map((s) => s.subject))].slice(0, 5);
@@ -42,7 +44,7 @@ export function StudyForm() {
     if (!subject.trim() || !duration) return;
 
     setIsSubmitting(true);
-    const durationMinutes = durationUnit === "hours" 
+    const durationMinutes = durationUnit === "hours"
       ? Math.round(parseFloat(duration) * 60)
       : parseInt(duration, 10);
 
@@ -150,6 +152,29 @@ export function StudyForm() {
               onChange={(e) => setGoal(e.target.value)}
               rows={3}
             />
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex items-center gap-2"
+                disabled={suggesting || !subject || !duration}
+                onClick={async () => {
+                  setSuggesting(true);
+                  const minutes = durationUnit === "hours" ? Math.round(parseFloat(duration) * 60) : parseInt(duration, 10);
+                  try {
+                    const text = await suggestGoal(subject, minutes);
+                    setGoal(text);
+                  } catch (e) {
+                    console.warn("Suggest goal failed", e);
+                  } finally {
+                    setSuggesting(false);
+                  }
+                }}
+              >
+                <WandSparkles className="h-4 w-4" />
+                {suggesting ? "Thinking..." : "Suggest Goal"}
+              </Button>
+            </div>
           </div>
 
           {/* Date */}

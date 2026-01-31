@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -13,6 +14,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Outfit", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Poppins", "Outfit", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -64,6 +69,8 @@ export default {
           orange: "hsl(var(--study-orange))",
           green: "hsl(var(--study-green))",
           cyan: "hsl(var(--study-cyan))",
+          indigo: "hsl(var(--study-indigo))",
+          rose: "hsl(var(--study-rose))",
         },
       },
       borderRadius: {
@@ -85,16 +92,28 @@ export default {
           "50%": { transform: "scaleY(1.1) rotate(2deg)" },
         },
         "glow": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.6" },
+          "0%, 100%": { opacity: "1", filter: "brightness(1)" },
+          "50%": { opacity: "0.8", filter: "brightness(1.2)" },
         },
         "float": {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
+          "50%": { transform: "translateY(-12px)" },
         },
         "shimmer": {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
+        },
+        "scaleIn": {
+          "0%": { transform: "scale(0.9)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "slideUp": {
+          "0%": { transform: "translateY(20px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "cardReveal": {
+          "0%": { opacity: "0", transform: "translateY(30px) scale(0.95)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
         },
       },
       animation: {
@@ -102,14 +121,20 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "flame": "flame 0.5s ease-in-out infinite",
         "glow": "glow 2s ease-in-out infinite",
-        "float": "float 3s ease-in-out infinite",
-        "shimmer": "shimmer 2s linear infinite",
+        "float": "float 6s ease-in-out infinite",
+        "shimmer": "shimmer 2.5s linear infinite",
+        "scale-in": "scaleIn 0.3s ease-out",
+        "slide-up": "slideUp 0.4s ease-out",
+        "card-reveal": "cardReveal 0.6s ease-out",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      backdropBlur: {
+        xs: "2px",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;
