@@ -29,6 +29,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/premium" element={<PremiumDashboard />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/notebook" element={<NotebookLLM />} />
           <Route path="/documents/:documentId/qa" element={<DocumentQA />} />
