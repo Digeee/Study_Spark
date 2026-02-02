@@ -139,6 +139,7 @@ export default function NotebookLLM() {
     ]);
     const [inputMessage, setInputMessage] = useState("");
     const [isPlaying, setIsPlaying] = useState(false);
+    const [showUploadDialog, setShowUploadDialog] = useState(false);
     const [activeTab, setActiveTab] = useState("chat");
     const [config, setConfig] = useState<NotebookConfig>({
         theme: 'light',
