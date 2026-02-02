@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import {
     Book,
     FileText,
@@ -14,16 +21,88 @@ import {
     Share2,
     MessageSquare,
     CheckCircle2,
-    ExternalLink
+    ExternalLink,
+    Upload,
+    Download,
+    Trash2,
+    Edit3,
+    Eye,
+    Mic,
+    Pause,
+    RotateCcw,
+    Copy,
+    Send,
+    Volume2,
+    VolumeX,
+    Maximize,
+    Minimize,
+    ZoomIn,
+    ZoomOut,
+    Settings,
+    Search,
+    Filter,
+    Grid3X3,
+    LayoutList,
+    NotebookPen,
+    FileQuestion,
+    GraduationCap,
+    Lightbulb,
+    Brain,
+    Target,
+    TrendingUp,
+    Award
 } from "lucide-react";
-import { generatePodcastScript } from "@/lib/ai-utilities";
+import { generatePodcastScript, generateSummary, generateFlashcards, generateQuiz } from "@/lib/ai-utilities";
+import { useDocuments } from "@/hooks/useDocuments";
+import { useStudySessions } from "@/hooks/useStudySessions";
+import { Document, Flashcard, GeneratedQuiz } from "@/types/study";
+import { PDFUploader } from "@/components/PDFUploader";
 
 interface Source {
     id: string;
     name: string;
-    type: "pdf" | "text" | "web";
+    type: "pdf" | "text" | "web" | "doc" | "ppt";
     content: string;
     selected: boolean;
+    uploadDate: string;
+    size: string;
+    pages?: number;
+    tags: string[];
+}
+
+interface ChatMessage {
+    id: string;
+    role: 'user' | 'ai';
+    content: string;
+    timestamp: Date;
+    sourcesUsed?: string[];
+}
+
+interface AudioOverview {
+    title: string;
+    duration: string;
+    description: string;
+    generatedAt: Date;
+    quality: 'basic' | 'standard' | 'premium';
+}
+
+interface StudyGuide {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: Date;
+    lastModified: Date;
+    status: 'draft' | 'published' | 'archived';
+    tags: string[];
+}
+
+interface NotebookConfig {
+    theme: 'light' | 'dark' | 'auto';
+    fontSize: 'small' | 'medium' | 'large';
+    layout: 'compact' | 'spacious';
+    autoSave: boolean;
+    aiAssistantEnabled: boolean;
+    voiceFeedback: boolean;
 }
 
 export default function NotebookLLM() {
@@ -33,45 +112,248 @@ export default function NotebookLLM() {
             name: "Biology_Chapter_1.pdf",
             type: "pdf",
             content: "Biology is the study of life...",
-            selected: true
+            selected: true,
+            uploadDate: new Date().toISOString(),
+            size: "2.4 MB",
+            pages: 12,
+            tags: ["biology", "chapter 1", "basics"]
         },
         {
             id: "2",
             name: "Lecture Notes - Cells",
             type: "text",
             content: "Cells are the basic unit of life...",
-            selected: true
+            selected: true,
+            uploadDate: new Date().toISOString(),
+            size: "0.8 MB",
+            tags: ["biology", "cells", "notes"]
         }
     ]);
 
-    const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([
-        { role: 'ai', content: "Hi! I'm your Notebook assistant. I've analyzed your sources. What would you like to know?" }
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+        { 
+            id: "initial", 
+            role: 'ai', 
+            content: "Hi! I'm your Notebook assistant. I've analyzed your sources. What would you like to know?",
+            timestamp: new Date()
+        }
     ]);
     const [inputMessage, setInputMessage] = useState("");
     const [isPlaying, setIsPlaying] = useState(false);
+    const [activeTab, setActiveTab] = useState("chat");
+    const [showUploadDialog, setShowUploadDialog] = useState(false);
+    const [config, setConfig] = useState<NotebookConfig>({
+        theme: 'light',
+        fontSize: 'medium',
+        layout: 'spacious',
+        autoSave: true,
+        aiAssistantEnabled: true,
+        voiceFeedback: false
+    });
 
     // Audio Overview State
-    const [audioScript, setAudioScript] = useState<{ title: string; duration: string; description: string } | null>(null);
+    const [audioScript, setAudioScript] = useState<AudioOverview | null>(null);
 
-    const handleGenerateAudio = () => {
-        // Simulate generation
-        const script = generatePodcastScript("Combined content from sources...", "Notebook Overview");
-        setAudioScript(script);
+    const { toast } = useToast();
+    const { documents, addDocument, getTotalDocuments, getReadyDocuments } = useDocuments();
+    const { sessions } = useStudySessions();
+
+    // Initialize with sample data
+    useEffect(() => {
+        // Load any existing notebook data
+        const savedConfig = localStorage.getItem('notebook-config');
+        if (savedConfig) {
+            try {
+                setConfig(JSON.parse(savedConfig));
+            } catch (e) {
+                console.error('Error loading notebook config:', e);
+            }
+        }
+    }, []);
+
+    // Save config when it changes
+    useEffect(() => {
+        localStorage.setItem('notebook-config', JSON.stringify(config));
+    }, [config]);
+
+    const handleAddSource = (newSource: Source) => {
+        setSources(prev => [...prev, newSource]);
+        setShowUploadDialog(false);
+        toast({
+            title: "Source Added",
+            description: `${newSource.name} has been added to your notebook.`
+        });
     };
 
-    const handleSendMessage = () => {
+    const handleRemoveSource = (id: string) => {
+        setSources(prev => prev.filter(source => source.id !== id));
+        toast({
+            title: "Source Removed",
+            description: "The source has been removed from your notebook.",
+            variant: "destructive"
+        });
+    };
+
+    const handleToggleSourceSelection = (id: string) => {
+        setSources(prev =>
+            prev.map(source =>
+                source.id === id ? { ...source, selected: !source.selected } : source
+            )
+        );
+    };
+
+    const handleGenerateStudyGuide = (topic: string) => {
+        const selectedContent = sources
+            .filter(s => s.selected)
+            .map(s => s.content)
+            .join('\n\n');
+        
+        const summary = generateSummary(selectedContent);
+        
+        toast({
+            title: "Study Guide Generated",
+            description: `Created a study guide for ${topic}`
+        });
+    };
+
+    const handleGenerateFlashcards = () => {
+        const selectedContent = sources
+            .filter(s => s.selected)
+            .map(s => s.content)
+            .join('\n\n');
+        
+        const flashcards = generateFlashcards(selectedContent);
+        
+        toast({
+            title: "Flashcards Created",
+            description: `Generated ${flashcards.length} flashcards from your sources`
+        });
+    };
+
+    const handleGenerateQuiz = () => {
+        const selectedContent = sources
+            .filter(s => s.selected)
+            .map(s => s.content)
+            .join('\n\n');
+        
+        try {
+            const quiz = generateQuiz(selectedContent, "Notebook Quiz");
+            
+            toast({
+                title: "Quiz Generated",
+                description: `Created a quiz with ${quiz.length} questions`
+            });
+        } catch (error) {
+            console.error('Error generating quiz:', error);
+            toast({
+                title: "Quiz Generation Failed",
+                description: "There was an issue generating the quiz. Please try again.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const handleCopyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast({
+            title: "Copied to Clipboard",
+            description: "The text has been copied to your clipboard."
+        });
+    };
+
+    const handleDownloadNotes = () => {
+        const content = sources
+            .filter(s => s.selected)
+            .map(s => `# ${s.name}
+${s.content}
+
+---
+
+`)
+            .join('');
+        
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'notebook-notes.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast({
+            title: "Notes Downloaded",
+            description: "Your selected notes have been downloaded."
+        });
+    };
+
+    const toggleVoiceFeedback = () => {
+        setConfig(prev => ({
+            ...prev,
+            voiceFeedback: !prev.voiceFeedback
+        }));
+    };
+
+    const filteredSources = sources.filter(source => source.selected);
+    const allSelected = sources.length > 0 && sources.every(s => s.selected);
+    const selectedCount = sources.filter(s => s.selected).length;
+    
+    // AI insights based on study sessions and documents
+    const aiInsights = [
+        `You've studied ${sessions.length} sessions and have ${getTotalDocuments()} documents in your library.`,
+        `Your current study streak is ${sessions.length > 0 ? 'active' : 'not established'}.`,
+        `Based on your sources, common themes include: ${sources.flatMap(s => s.tags).slice(0, 3).join(', ')}.`,
+    ];
+
+    const handleGenerateAudio = () => {
+        if (filteredSources.length === 0) {
+            toast({
+                title: "No Sources Selected",
+                description: "Please select at least one source to generate audio.",
+                variant: "destructive"
+            });
+            return;
+        }
+        
+        // Simulate generation
+        const combinedContent = filteredSources.map(s => s.content).join('\n\n');
+        const script = generatePodcastScript(combinedContent, "Notebook Overview");
+        const audioOverview: AudioOverview = {
+            title: script.title,
+            duration: script.duration,
+            description: script.description,
+            generatedAt: new Date(),
+            quality: 'standard'
+        };
+        setAudioScript(audioOverview);
+        
+        toast({
+            title: "Audio Generated",
+            description: "Your audio overview is ready to play."
+        });
+    };
         if (!inputMessage.trim()) return;
 
-        setChatMessages(prev => [...prev, { role: 'user', content: inputMessage }]);
+        const userMessage: ChatMessage = {
+            id: `msg-${Date.now()}`,
+            role: 'user',
+            content: inputMessage,
+            timestamp: new Date()
+        };
+        setChatMessages(prev => [...prev, userMessage]);
         const currentMsg = inputMessage;
         setInputMessage("");
 
         // Simulate AI response
         setTimeout(() => {
-            setChatMessages(prev => [...prev, {
+            const aiMessage: ChatMessage = {
+                id: `msg-${Date.now() + 1}`,
                 role: 'ai',
-                content: `Based on your sources, here is what I found about "${currentMsg}": \n\nLooking at the provided documents, the concept is explained in Chapter 1. It suggests that biological systems are complex and interconnected.`
-            }]);
+                content: `Based on your sources, here is what I found about "${currentMsg}": \n\nLooking at the provided documents, the concept is explained in Chapter 1. It suggests that biological systems are complex and interconnected.`,
+                timestamp: new Date()
+            };
+            setChatMessages(prev => [...prev, aiMessage]);
         }, 1000);
     };
 
@@ -162,6 +444,25 @@ export default function NotebookLLM() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full min-h-0">
                         {/* Audio Overview Column */}
                         <div className="col-span-1 space-y-4">
+                            {/* AI Insights Card */}
+                            <Card className="overflow-hidden border-none shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50/50">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-lg flex items-center justify-between">
+                                        AI Insights
+                                        <Lightbulb className="h-4 w-4 text-blue-500" />
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                        {aiInsights.map((insight, index) => (
+                                            <div key={index} className="text-xs text-muted-foreground p-2 bg-white/50 rounded-lg">
+                                                • {insight}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                             <Card className="overflow-hidden border-none shadow-lg bg-gradient-to-br from-white to-purple-50/50">
                                 <CardHeader className="pb-2">
                                     <CardTitle className="text-lg flex items-center justify-between">
@@ -190,7 +491,7 @@ export default function NotebookLLM() {
                                                 setIsPlaying(!isPlaying)
                                             }}
                                         >
-                                            {isPlaying ? <div className="h-4 w-4 bg-white rounded-sm" /> : <Play className="h-5 w-5 ml-1" />}
+                                            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 ml-0.5" />}
                                         </Button>
                                     </div>
 
@@ -201,6 +502,9 @@ export default function NotebookLLM() {
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className="text-xs font-mono bg-primary/10 text-primary px-2 py-1 rounded">
                                                     {audioScript.duration}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    Generated {new Date(audioScript.generatedAt).toLocaleDateString()}
                                                 </span>
                                             </div>
                                         </div>
@@ -213,12 +517,30 @@ export default function NotebookLLM() {
                             </Card>
 
                             <div className="grid grid-cols-2 gap-3">
-                                {['Study Guide', 'Briefing Doc', 'FAQ', 'Timeline'].map((item) => (
-                                    <Card key={item} className="p-3 cursor-pointer hover:border-primary/50 transition-all hover:bg-primary/5">
-                                        <h4 className="font-medium text-sm mb-1">{item}</h4>
-                                        <p className="text-xs text-muted-foreground">Click to generate</p>
-                                    </Card>
-                                ))}
+                                <Card className="p-3 cursor-pointer hover:border-primary/50 transition-all hover:bg-primary/5">
+                                    <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
+                                        <GraduationCap className="h-4 w-4" /> Study Guide
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">Click to generate</p>
+                                </Card>
+                                <Card className="p-3 cursor-pointer hover:border-primary/50 transition-all hover:bg-primary/5">
+                                    <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
+                                        <FileQuestion className="h-4 w-4" /> Briefing Doc
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">Click to generate</p>
+                                </Card>
+                                <Card className="p-3 cursor-pointer hover:border-primary/50 transition-all hover:bg-primary/5">
+                                    <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
+                                        <Target className="h-4 w-4" /> FAQ
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">Click to generate</p>
+                                </Card>
+                                <Card className="p-3 cursor-pointer hover:border-primary/50 transition-all hover:bg-primary/5">
+                                    <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
+                                        <TrendingUp className="h-4 w-4" /> Timeline
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground">Click to generate</p>
+                                </Card>
                             </div>
                         </div>
 
