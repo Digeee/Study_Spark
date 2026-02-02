@@ -330,6 +330,8 @@ ${s.content}
             description: "Your audio overview is ready to play."
         });
     };
+
+    const handleSendMessage = () => {
         if (!inputMessage.trim()) return;
 
         const userMessage: ChatMessage = {
