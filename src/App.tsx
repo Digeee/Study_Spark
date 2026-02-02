@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
+import PremiumDashboard from "./pages/PremiumDashboard";
 import AddStudy from "./pages/AddStudy";
 import FocusMode from "./pages/FocusMode";
 import Achievements from "./pages/Achievements";

@@ -13,6 +13,7 @@ import { RecentActivity } from "@/components/RecentActivity";
 import { SmartInsights } from "@/components/SmartInsights";
 import { BadgeGrid } from "@/components/BadgeGrid";
 import { LevelProgress } from "@/components/LevelProgress";
+import { ParticleField, MorphingBlob, GradientText, ShimmerButton, FloatingCard } from "@/components/PremiumUI";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
