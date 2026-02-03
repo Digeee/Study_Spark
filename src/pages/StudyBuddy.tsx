@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { AppLayout } from "@/components/AppLayout";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -160,7 +160,8 @@ export default function StudyBuddy() {
     };
 
     return (
-        <AppLayout>
+        <div className="w-full">
+
             <div className="h-[calc(100vh-100px)] flex flex-col gap-4">
                 {/* Header Information */}
                 {!isConnected ? (
@@ -512,6 +513,6 @@ export default function StudyBuddy() {
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </div>
     );
 }

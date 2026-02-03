@@ -1,5 +1,5 @@
-import { AppLayout } from "@/components/AppLayout";
 import { PomodoroTimer } from "@/components/PomodoroTimer";
+
 import { usePomodoroSessions } from "@/hooks/usePomodoroSessions";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -12,7 +12,8 @@ export default function FocusMode() {
   );
 
   return (
-    <AppLayout>
+    <div className="w-full">
+
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">
@@ -60,6 +61,6 @@ export default function FocusMode() {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </div>
   );
 }

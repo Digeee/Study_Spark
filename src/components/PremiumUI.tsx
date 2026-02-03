@@ -1,16 +1,17 @@
 import { ReactNode, useEffect, useRef } from 'react';
 
 interface ParticleFieldProps {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   density?: 'low' | 'medium' | 'high';
   interaction?: boolean;
 }
 
+
 export function ParticleField({ children, className = '', density = 'medium', interaction = true }: ParticleFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -24,14 +25,14 @@ export function ParticleField({ children, className = '', density = 'medium', in
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
     };
-    
+
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
     // Particle system
     const particleCount = density === 'high' ? 100 : density === 'medium' ? 60 : 30;
     const particles: Particle[] = [];
-    
+
     class Particle {
       x: number;
       y: number;
@@ -40,7 +41,7 @@ export function ParticleField({ children, className = '', density = 'medium', in
       size: number;
       opacity: number;
       hue: number;
-      
+
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
@@ -50,21 +51,21 @@ export function ParticleField({ children, className = '', density = 'medium', in
         this.opacity = Math.random() * 0.5 + 0.2;
         this.hue = Math.random() * 60 + 260; // Purple range
       }
-      
+
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        
+
         // Boundary check
         if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        
+
         // Mouse interaction
         if (interaction && mouse.x !== null && mouse.y !== null) {
           const dx = mouse.x - this.x;
           const dy = mouse.y - this.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < 100) {
             const force = (100 - distance) / 100;
             this.vx += dx * force * 0.001;
@@ -72,7 +73,7 @@ export function ParticleField({ children, className = '', density = 'medium', in
           }
         }
       }
-      
+
       draw() {
         if (!ctx) return;
         ctx.beginPath();
@@ -84,19 +85,19 @@ export function ParticleField({ children, className = '', density = 'medium', in
 
     // Mouse position tracking
     const mouse = { x: null as number | null, y: null as number | null };
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!container) return;
       const rect = container.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
       mouse.y = e.clientY - rect.top;
     };
-    
+
     const handleMouseLeave = () => {
       mouse.x = null;
       mouse.y = null;
     };
-    
+
     if (interaction) {
       container.addEventListener('mousemove', handleMouseMove);
       container.addEventListener('mouseleave', handleMouseLeave);
@@ -109,17 +110,17 @@ export function ParticleField({ children, className = '', density = 'medium', in
 
     // Animation loop
     let animationFrameId: number;
-    
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw connections between nearby particles
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < 100) {
             const opacity = (100 - distance) / 100 * 0.2;
             ctx.beginPath();
@@ -131,16 +132,16 @@ export function ParticleField({ children, className = '', density = 'medium', in
           }
         }
       }
-      
+
       // Update and draw particles
       particles.forEach(particle => {
         particle.update();
         particle.draw();
       });
-      
+
       animationFrameId = requestAnimationFrame(animate);
     };
-    
+
     animate();
 
     // Cleanup
@@ -156,8 +157,8 @@ export function ParticleField({ children, className = '', density = 'medium', in
 
   return (
     <div ref={containerRef} className={`relative overflow-hidden ${className}`}>
-      <canvas 
-        ref={canvasRef} 
+      <canvas
+        ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
       <div className="relative z-10">
@@ -174,18 +175,18 @@ interface MorphingBlobProps {
   speed?: 'slow' | 'normal' | 'fast';
 }
 
-export function MorphingBlob({ 
-  className = '', 
-  color = 'from-purple-500/20 via-pink-500/20 to-blue-500/20', 
+export function MorphingBlob({
+  className = '',
+  color = 'from-purple-500/20 via-pink-500/20 to-blue-500/20',
   size = 'md',
-  speed = 'normal' 
+  speed = 'normal'
 }: MorphingBlobProps) {
   const sizeClasses = {
     sm: 'w-32 h-32',
     md: 'w-48 h-48',
     lg: 'w-64 h-64'
   };
-  
+
   const animationClasses = {
     slow: 'animate-pulse',
     normal: 'animate-pulse-slow',
@@ -208,9 +209,9 @@ interface GradientTextProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
-export function GradientText({ 
-  children, 
-  variant = 'primary', 
+export function GradientText({
+  children,
+  variant = 'primary',
   className = '',
   size = 'md'
 }: GradientTextProps) {
@@ -244,15 +245,15 @@ interface ShimmerButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost';
 }
 
-export function ShimmerButton({ 
-  children, 
-  className = '', 
+export function ShimmerButton({
+  children,
+  className = '',
   onClick,
   disabled = false,
   variant = 'primary'
 }: ShimmerButtonProps) {
   const baseClasses = "relative overflow-hidden px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2";
-  
+
   const variantClasses = {
     primary: "bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-xl hover:shadow-purple-500/25 focus:ring-primary",
     secondary: "bg-gradient-to-r from-secondary to-purple-100 text-purple-800 hover:shadow-lg hover:shadow-purple-200/50 focus:ring-purple-300",
@@ -260,7 +261,7 @@ export function ShimmerButton({
   };
 
   return (
-    <button 
+    <button
       className={`${baseClasses} ${variantClasses[variant]} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={onClick}
       disabled={disabled}
@@ -278,14 +279,14 @@ interface FloatingCardProps {
   variant?: 'default' | 'glass' | 'neumorphic';
 }
 
-export function FloatingCard({ 
-  children, 
-  className = '', 
+export function FloatingCard({
+  children,
+  className = '',
   delay = 0,
   variant = 'default'
 }: FloatingCardProps) {
   const baseClasses = "rounded-2xl p-6 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl";
-  
+
   const variantClasses = {
     default: "bg-white/80 backdrop-blur-xl border border-white/30 shadow-xl",
     glass: "glass-card",
@@ -293,7 +294,7 @@ export function FloatingCard({
   };
 
   return (
-    <div 
+    <div
       className={`${baseClasses} ${variantClasses[variant]} ${className} animate-float`}
       style={{ animationDelay: `${delay}s` }}
     >
