@@ -20,9 +20,9 @@ import { ParticleField, MorphingBlob, GradientText, ShimmerButton, FloatingCard 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { 
-  Clock, Target, Zap, BookOpen, WandSparkles, Brain, FileText, BarChart3, 
-  Sparkles, Plus, TrendingUp, Award, Lightbulb, Calendar, Users, 
+import {
+  Clock, Target, Zap, BookOpen, WandSparkles, Brain, FileText, BarChart3,
+  Sparkles, Plus, TrendingUp, Award, Lightbulb, Calendar, Users,
   MessageSquare, Settings, Bell, Search, Filter
 } from "lucide-react";
 import { format } from "date-fns";
@@ -46,7 +46,7 @@ export default function PremiumDashboard() {
     if (!isUserDataInitialized()) {
       const initialized = initializeUserData();
       setDataInitialized(initialized);
-      
+
       // Refresh queries after initialization
       if (initialized) {
         setTimeout(() => {
@@ -123,7 +123,8 @@ export default function PremiumDashboard() {
   };
 
   return (
-    <AppLayout>
+    <div className="w-full">
+
       <div className="space-y-10 pb-10">
         {/* Premium Welcome Hero Section */}
         <ParticleField className="rounded-3xl overflow-hidden" density="high" interaction={true}>
@@ -131,7 +132,7 @@ export default function PremiumDashboard() {
             {/* Decorative floating elements */}
             <MorphingBlob className="top-6 right-6 opacity-30" size="sm" speed="slow" />
             <MorphingBlob className="bottom-6 left-6 opacity-25" size="sm" speed="normal" color="from-blue-400/30 via-cyan-400/30 to-teal-400/30" />
-            
+
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="space-y-6 max-w-2xl">
                 <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/20 backdrop-blur-xl border border-white/30 text-sm font-semibold shadow-lg">
@@ -142,7 +143,7 @@ export default function PremiumDashboard() {
                     AI-Powered Learning Assistant
                   </GradientText>
                 </div>
-                
+
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
                   <span className="block mb-2">
                     <GradientText variant="primary" size="2xl" className="text-white">
@@ -153,7 +154,7 @@ export default function PremiumDashboard() {
                     Keep the momentum flowing! 🚀
                   </span>
                 </h1>
-                
+
                 <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 max-w-md">
                   <div className="flex-1">
                     <p className="text-white/90">
@@ -172,16 +173,16 @@ export default function PremiumDashboard() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex flex-wrap gap-4">
-                <ShimmerButton 
+                <ShimmerButton
                   onClick={() => navigate('/documents')}
                   className="h-14 px-8 text-lg font-bold rounded-2xl shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/40"
                 >
                   <Plus className="mr-2 h-5 w-5" /> New Study Session
                 </ShimmerButton>
-                
-                <ShimmerButton 
+
+                <ShimmerButton
                   variant="secondary"
                   onClick={() => navigate('/notebook')}
                   className="h-14 px-8 text-lg font-semibold rounded-2xl border-2 border-white/30 backdrop-blur-md hover:bg-white/20 hover:border-white/40"
@@ -280,9 +281,9 @@ export default function PremiumDashboard() {
                   <Lightbulb className="h-5 w-5 text-yellow-500" />
                   AI Insights
                 </h3>
-                <ShimmerButton 
-                  variant="ghost" 
-                  onClick={refreshAI} 
+                <ShimmerButton
+                  variant="ghost"
+                  onClick={refreshAI}
                   disabled={aiLoading}
                   className="text-sm"
                 >
@@ -316,29 +317,29 @@ export default function PremiumDashboard() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Quick Actions</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  <ShimmerButton 
-                    variant="secondary" 
+                  <ShimmerButton
+                    variant="secondary"
                     onClick={() => navigate('/focus-mode')}
                     className="h-12 text-sm"
                   >
                     <Zap className="h-4 w-4 mr-2" /> Focus Mode
                   </ShimmerButton>
-                  <ShimmerButton 
-                    variant="secondary" 
+                  <ShimmerButton
+                    variant="secondary"
                     onClick={() => navigate('/analytics')}
                     className="h-12 text-sm"
                   >
                     <BarChart3 className="h-4 w-4 mr-2" /> Analytics
                   </ShimmerButton>
-                  <ShimmerButton 
-                    variant="secondary" 
+                  <ShimmerButton
+                    variant="secondary"
                     onClick={() => navigate('/flashcards')}
                     className="h-12 text-sm"
                   >
                     <Brain className="h-4 w-4 mr-2" /> Flashcards
                   </ShimmerButton>
-                  <ShimmerButton 
-                    variant="secondary" 
+                  <ShimmerButton
+                    variant="secondary"
                     onClick={() => navigate('/study-planner')}
                     className="h-12 text-sm"
                   >
@@ -361,11 +362,11 @@ export default function PremiumDashboard() {
         </div>
 
         {/* Onboarding Modal */}
-        <OnboardingModal 
-          isOpen={showOnboarding} 
-          onClose={() => setShowOnboarding(false)} 
+        <OnboardingModal
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
         />
       </div>
-    </AppLayout>
+    </div>
   );
 }

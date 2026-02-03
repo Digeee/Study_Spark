@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AppLayout } from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,34 +9,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useQuizzes } from '@/hooks/useQuizzes';
 import { useDocuments } from '@/hooks/useDocuments';
-import { 
-  FileText, 
-  Play, 
-  Square, 
-  RotateCcw, 
+import {
+  FileText,
+  Play,
+  RotateCcw,
   CheckCircle,
   XCircle,
-  BarChart3,
   Plus,
   Sparkles,
-  Loader2
+  RotateCw,
+  MessageSquare
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function QuizGenerator() {
-  const { 
-    quizzes, 
-    currentQuiz, 
-    currentQuestionIndex, 
-    answers, 
-    quizStarted, 
+  const {
+    quizzes,
+    currentQuiz,
+    currentQuestionIndex,
+    quizStarted,
     quizCompleted,
     createQuiz,
     startQuiz,
     submitAnswer,
     goToNextQuestion,
     goToPreviousQuestion,
-    finishQuiz,
     resetQuiz,
     getQuizResults,
     getCurrentQuestion,
@@ -45,7 +41,7 @@ export default function QuizGenerator() {
     getAnswer,
     getStats
   } = useQuizzes();
-  
+
   const { documents } = useDocuments();
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [quizForm, setQuizForm] = useState({
@@ -104,7 +100,7 @@ export default function QuizGenerator() {
 
   const handleAnswerSubmit = () => {
     if (!currentQuestion || !userAnswer.trim()) return;
-    
+
     submitAnswer(currentQuestion.id, userAnswer.trim());
     setUserAnswer('');
   };
@@ -120,187 +116,183 @@ export default function QuizGenerator() {
 
   if (quizStarted && currentQuiz && !quizCompleted) {
     return (
-      <AppLayout>
-        <div className="container mx-auto py-8">
-          {/* Quiz Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl font-bold">{currentQuiz.title}</h1>
-              <p className="text-muted-foreground">
-                Question {currentQuestionIndex + 1} of {currentQuiz.questions.length}
-              </p>
-            </div>
-            <Badge className={getDifficultyColor(currentQuiz.difficulty)}>
-              {currentQuiz.difficulty} • {currentQuiz.estimatedTime} min
-            </Badge>
+      <div className="container mx-auto py-8">
+        {/* Quiz Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">{currentQuiz.title}</h1>
+            <p className="text-muted-foreground">
+              Question {currentQuestionIndex + 1} of {currentQuiz.questions.length}
+            </p>
           </div>
-
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex justify-between text-sm mb-2">
-              <span>Progress</span>
-              <span>{currentQuestionIndex + 1}/{currentQuiz.questions.length}</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-3">
-              <div 
-                className="bg-primary h-3 rounded-full transition-all duration-300"
-                style={{ width: `${((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Question Card */}
-          <motion.div
-            key={currentQuestion?.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="max-w-3xl mx-auto"
-          >
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Question {currentQuestionIndex + 1}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-lg">
-                  {currentQuestion?.question}
-                </div>
-                
-                <div className="space-y-4">
-                  <Label>Your Answer</Label>
-                  <Textarea
-                    placeholder="Type your answer here..."
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    className="glass-input min-h-[120px]"
-                    disabled={isAnswered(currentQuestion?.id || '')}
-                  />
-                  
-                  <div className="flex gap-3">
-                    {!isAnswered(currentQuestion?.id || '') ? (
-                      <>
-                        <Button 
-                          onClick={handleAnswerSubmit}
-                          disabled={!userAnswer.trim()}
-                          className="gradient-primary text-white"
-                        >
-                          Submit Answer
-                        </Button>
-                        {currentQuestionIndex > 0 && (
-                          <Button 
-                            variant="outline" 
-                            onClick={goToPreviousQuestion}
-                          >
-                            Previous
-                          </Button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <Button 
-                          onClick={goToNextQuestion}
-                          className="gradient-primary text-white"
-                        >
-                          {currentQuestionIndex < currentQuiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
-                        </Button>
-                        {currentQuestionIndex > 0 && (
-                          <Button 
-                            variant="outline" 
-                            onClick={goToPreviousQuestion}
-                          >
-                            Previous
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Submitted Answer */}
-                {isAnswered(currentQuestion?.id || '') && (
-                  <div className="p-4 bg-muted/30 rounded-lg">
-                    <p className="font-medium mb-2">Your Answer:</p>
-                    <p className="text-muted-foreground">{getAnswer(currentQuestion?.id || '')}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Badge className={getDifficultyColor(currentQuiz.difficulty)}>
+            {currentQuiz.difficulty} • {currentQuiz.estimatedTime} min
+          </Badge>
         </div>
-      </AppLayout>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm mb-2">
+            <span>Progress</span>
+            <span>{currentQuestionIndex + 1}/{currentQuiz.questions.length}</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-3">
+            <div
+              className="bg-primary h-3 rounded-full transition-all duration-300"
+              style={{ width: `${((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Question Card */}
+        <motion.div
+          key={currentQuestion?.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="max-w-3xl mx-auto"
+        >
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Question {currentQuestionIndex + 1}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="text-lg">
+                {currentQuestion?.question}
+              </div>
+
+              <div className="space-y-4">
+                <Label>Your Answer</Label>
+                <Textarea
+                  placeholder="Type your answer here..."
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  className="glass-input min-h-[120px]"
+                  disabled={isAnswered(currentQuestion?.id || '')}
+                />
+
+                <div className="flex gap-3">
+                  {!isAnswered(currentQuestion?.id || '') ? (
+                    <>
+                      <Button
+                        onClick={handleAnswerSubmit}
+                        disabled={!userAnswer.trim()}
+                        className="gradient-primary text-white"
+                      >
+                        Submit Answer
+                      </Button>
+                      {currentQuestionIndex > 0 && (
+                        <Button
+                          variant="outline"
+                          onClick={goToPreviousQuestion}
+                        >
+                          Previous
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={goToNextQuestion}
+                        className="gradient-primary text-white"
+                      >
+                        {currentQuestionIndex < currentQuiz.questions.length - 1 ? 'Next Question' : 'Finish Quiz'}
+                      </Button>
+                      {currentQuestionIndex > 0 && (
+                        <Button
+                          variant="outline"
+                          onClick={goToPreviousQuestion}
+                        >
+                          Previous
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Submitted Answer */}
+              {isAnswered(currentQuestion?.id || '') && (
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <p className="font-medium mb-2">Your Answer:</p>
+                  <p className="text-muted-foreground">{getAnswer(currentQuestion?.id || '')}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     );
   }
 
   if (quizCompleted && results) {
     return (
-      <AppLayout>
-        <div className="container mx-auto py-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <div className="mb-8">
-              {results.passed ? (
-                <CheckCircle className="h-24 w-24 text-green-500 mx-auto mb-4" />
-              ) : (
-                <XCircle className="h-24 w-24 text-red-500 mx-auto mb-4" />
-              )}
-              <h1 className="text-3xl font-bold mb-2">
-                Quiz Completed!
-              </h1>
-              <p className="text-muted-foreground">
-                {currentQuiz?.title}
-              </p>
-            </div>
+      <div className="container mx-auto py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto text-center"
+        >
+          <div className="mb-8">
+            {results.passed ? (
+              <CheckCircle className="h-24 w-24 text-green-500 mx-auto mb-4" />
+            ) : (
+              <XCircle className="h-24 w-24 text-red-500 mx-auto mb-4" />
+            )}
+            <h1 className="text-3xl font-bold mb-2">
+              Quiz Completed!
+            </h1>
+            <p className="text-muted-foreground">
+              {currentQuiz?.title}
+            </p>
+          </div>
 
-            <Card className="glass-card mb-8">
-              <CardHeader>
-                <CardTitle>Results</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-primary/10 rounded-lg">
-                    <p className="text-3xl font-bold">{results.score}%</p>
-                    <p className="text-muted-foreground">Score</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted/30 rounded-lg">
-                    <p className="text-3xl font-bold">{results.correctAnswers}/{results.totalQuestions}</p>
-                    <p className="text-muted-foreground">Correct Answers</p>
-                  </div>
+          <Card className="glass-card mb-8">
+            <CardHeader>
+              <CardTitle>Results</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-primary/10 rounded-lg">
+                  <p className="text-3xl font-bold">{results.score}%</p>
+                  <p className="text-muted-foreground">Score</p>
                 </div>
-                
-                <div className="pt-4 border-t">
-                  <p className={`text-lg font-medium ${results.passed ? 'text-green-600' : 'text-red-600'}`}>
-                    {results.passed ? '🎉 Congratulations! You passed!' : '📚 Keep studying and try again!'}
-                  </p>
+                <div className="text-center p-4 bg-muted/30 rounded-lg">
+                  <p className="text-3xl font-bold">{results.correctAnswers}/{results.totalQuestions}</p>
+                  <p className="text-muted-foreground">Correct Answers</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            <div className="flex gap-3 justify-center">
-              <Button 
-                onClick={resetQuiz}
-                variant="outline"
-              >
-                <RotateCw className="h-4 w-4 mr-2" />
-                Take Another Quiz
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </AppLayout>
+              <div className="pt-4 border-t">
+                <p className={`text-lg font-medium ${results.passed ? 'text-green-600' : 'text-red-600'}`}>
+                  {results.passed ? '🎉 Congratulations! You passed!' : '📚 Keep studying and try again!'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-3 justify-center">
+            <Button
+              onClick={resetQuiz}
+              variant="outline"
+            >
+              <RotateCw className="h-4 w-4 mr-2" />
+              Take Another Quiz
+            </Button>
+          </div>
+        </motion.div>
+      </div>
     );
   }
 
   // Quiz Library View
   return (
-    <AppLayout>
+    <div className="w-full">
       <div className="container mx-auto py-8">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
@@ -314,8 +306,8 @@ export default function QuizGenerator() {
               Create and take AI-powered practice quizzes
             </p>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={() => setCreatingQuiz(!creatingQuiz)}
             className="gradient-primary text-white"
           >
@@ -325,7 +317,7 @@ export default function QuizGenerator() {
         </motion.div>
 
         {/* Stats */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
@@ -336,14 +328,14 @@ export default function QuizGenerator() {
               <p className="text-sm text-muted-foreground">Total Quizzes</p>
             </CardContent>
           </Card>
-          
+
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">{stats.taken}</p>
               <p className="text-sm text-muted-foreground">Quizzes Taken</p>
             </CardContent>
           </Card>
-          
+
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">{stats.averageScore}%</p>
@@ -354,7 +346,7 @@ export default function QuizGenerator() {
 
         {/* Create Quiz Form */}
         {creatingQuiz && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
@@ -370,7 +362,7 @@ export default function QuizGenerator() {
                     <Input
                       placeholder="e.g., Biology Chapter 1 Review"
                       value={quizForm.title}
-                      onChange={(e) => setQuizForm({...quizForm, title: e.target.value})}
+                      onChange={(e) => setQuizForm({ ...quizForm, title: e.target.value })}
                       className="glass-input mt-1"
                     />
                   </div>
@@ -379,18 +371,18 @@ export default function QuizGenerator() {
                     <Input
                       placeholder="e.g., Biology, History, Mathematics"
                       value={quizForm.subject}
-                      onChange={(e) => setQuizForm({...quizForm, subject: e.target.value})}
+                      onChange={(e) => setQuizForm({ ...quizForm, subject: e.target.value })}
                       className="glass-input mt-1"
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label>Difficulty</Label>
-                    <Select 
-                      value={quizForm.difficulty} 
-                      onValueChange={(value: any) => setQuizForm({...quizForm, difficulty: value})}
+                    <Select
+                      value={quizForm.difficulty}
+                      onValueChange={(value: any) => setQuizForm({ ...quizForm, difficulty: value })}
                     >
                       <SelectTrigger className="glass-input mt-1">
                         <SelectValue />
@@ -404,9 +396,9 @@ export default function QuizGenerator() {
                   </div>
                   <div>
                     <Label>Number of Questions</Label>
-                    <Select 
-                      value={quizForm.questionCount.toString()} 
-                      onValueChange={(value: string) => setQuizForm({...quizForm, questionCount: parseInt(value)})}
+                    <Select
+                      value={quizForm.questionCount.toString()}
+                      onValueChange={(value: string) => setQuizForm({ ...quizForm, questionCount: parseInt(value) })}
                     >
                       <SelectTrigger className="glass-input mt-1">
                         <SelectValue />
@@ -420,8 +412,8 @@ export default function QuizGenerator() {
                     </Select>
                   </div>
                 </div>
-                
-                <Button 
+
+                <Button
                   onClick={handleCreateQuiz}
                   className="gradient-primary text-white"
                 >
@@ -436,9 +428,9 @@ export default function QuizGenerator() {
         {/* Quiz Library */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold">Your Quizzes</h2>
-          
+
           {quizzes.length === 0 ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-12"
@@ -478,8 +470,8 @@ export default function QuizGenerator() {
                         <span>{quiz.questions.length} questions</span>
                         <span>{quiz.estimatedTime} min</span>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         onClick={() => startQuiz(quiz.id)}
                         className="w-full gradient-primary text-white"
                         disabled={quizStarted}
@@ -495,6 +487,6 @@ export default function QuizGenerator() {
           )}
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }

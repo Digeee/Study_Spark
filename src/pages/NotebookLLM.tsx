@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -130,9 +129,9 @@ export default function NotebookLLM() {
     ]);
 
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-        { 
-            id: "initial", 
-            role: 'ai', 
+        {
+            id: "initial",
+            role: 'ai',
             content: "Hi! I'm your Notebook assistant. I've analyzed your sources. What would you like to know?",
             timestamp: new Date()
         }
@@ -205,9 +204,9 @@ export default function NotebookLLM() {
             .filter(s => s.selected)
             .map(s => s.content)
             .join('\n\n');
-        
+
         const summary = generateSummary(selectedContent);
-        
+
         toast({
             title: "Study Guide Generated",
             description: `Created a study guide for ${topic}`
@@ -219,9 +218,9 @@ export default function NotebookLLM() {
             .filter(s => s.selected)
             .map(s => s.content)
             .join('\n\n');
-        
+
         const flashcards = generateFlashcards(selectedContent);
-        
+
         toast({
             title: "Flashcards Created",
             description: `Generated ${flashcards.length} flashcards from your sources`
@@ -233,10 +232,10 @@ export default function NotebookLLM() {
             .filter(s => s.selected)
             .map(s => s.content)
             .join('\n\n');
-        
+
         try {
             const quiz = generateQuiz(selectedContent, "Notebook Quiz");
-            
+
             toast({
                 title: "Quiz Generated",
                 description: `Created a quiz with ${quiz.length} questions`
@@ -269,7 +268,7 @@ ${s.content}
 
 `)
             .join('');
-        
+
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -279,7 +278,7 @@ ${s.content}
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         toast({
             title: "Notes Downloaded",
             description: "Your selected notes have been downloaded."
@@ -296,7 +295,7 @@ ${s.content}
     const filteredSources = sources.filter(source => source.selected);
     const allSelected = sources.length > 0 && sources.every(s => s.selected);
     const selectedCount = sources.filter(s => s.selected).length;
-    
+
     // AI insights based on study sessions and documents
     const aiInsights = [
         `You've studied ${sessions.length} sessions and have ${getTotalDocuments()} documents in your library.`,
@@ -313,7 +312,7 @@ ${s.content}
             });
             return;
         }
-        
+
         // Simulate generation
         const combinedContent = filteredSources.map(s => s.content).join('\n\n');
         const script = generatePodcastScript(combinedContent, "Notebook Overview");
@@ -325,7 +324,7 @@ ${s.content}
             quality: 'standard'
         };
         setAudioScript(audioOverview);
-        
+
         toast({
             title: "Audio Generated",
             description: "Your audio overview is ready to play."
@@ -362,7 +361,8 @@ ${s.content}
     };
 
     return (
-        <AppLayout>
+        <div className="w-full">
+
             <div className="flex h-[calc(100vh-100px)] gap-6">
                 {/* Left Sidebar - Sources */}
                 <div className="w-80 flex flex-col gap-4">
@@ -372,18 +372,18 @@ ${s.content}
                                 <Book className="h-5 w-5" /> Sources
                             </h2>
                             <div className="flex gap-2">
-                                <Button 
-                                    size="icon" 
-                                    variant="ghost" 
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
                                     onClick={() => setSources([])}
                                     disabled={sources.length === 0}
                                     title="Clear all sources"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
-                                <Button 
-                                    size="icon" 
-                                    variant="ghost" 
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
                                     onClick={() => {
                                         // Add source functionality
                                         const newSource: Source = {
@@ -406,8 +406,8 @@ ${s.content}
 
                         <div className="flex items-center gap-2 mb-4 p-2 bg-muted rounded-lg">
                             <Search className="h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Search sources..." 
+                            <Input
+                                placeholder="Search sources..."
                                 className="border-none bg-transparent focus-visible:ring-0"
                             />
                         </div>
@@ -418,16 +418,16 @@ ${s.content}
                                     <div
                                         key={source.id}
                                         className={`p-4 rounded-xl border transition-all cursor-pointer ${source.selected
-                                                ? 'bg-white border-primary/20 shadow-sm'
-                                                : 'bg-white/50 border-transparent hover:bg-white'
+                                            ? 'bg-white border-primary/20 shadow-sm'
+                                            : 'bg-white/50 border-transparent hover:bg-white'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2 rounded-lg ${source.type === 'pdf' ? 'bg-red-100 text-red-600' :
-                                                    source.type === 'text' ? 'bg-blue-100 text-blue-600' :
+                                                source.type === 'text' ? 'bg-blue-100 text-blue-600' :
                                                     source.type === 'doc' ? 'bg-blue-200 text-blue-700' :
-                                                    source.type === 'ppt' ? 'bg-orange-100 text-orange-600' :
-                                                        'bg-green-100 text-green-600'
+                                                        source.type === 'ppt' ? 'bg-orange-100 text-orange-600' :
+                                                            'bg-green-100 text-green-600'
                                                 }`}>
                                                 <FileText className="h-4 w-4" />
                                             </div>
@@ -452,9 +452,9 @@ ${s.content}
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <div className="flex gap-1">
-                                                    <Button 
-                                                        size="icon" 
-                                                        variant="ghost" 
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
                                                         className="h-6 w-6"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -463,9 +463,9 @@ ${s.content}
                                                     >
                                                         {source.selected ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <div className="h-4 w-4 border rounded-sm" />}
                                                     </Button>
-                                                    <Button 
-                                                        size="icon" 
-                                                        variant="ghost" 
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
                                                         className="h-6 w-6"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -475,9 +475,9 @@ ${s.content}
                                                         <Copy className="h-3 w-3" />
                                                     </Button>
                                                 </div>
-                                                <Button 
-                                                    size="icon" 
-                                                    variant="ghost" 
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
                                                     className="h-6 w-6"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -491,7 +491,7 @@ ${s.content}
                                     </div>
                                 ))}
 
-                                <div 
+                                <div
                                     className="h-24 rounded-xl border-2 border-dashed border-muted-foreground/20 flex flex-col items-center justify-center text-muted-foreground hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
                                     onClick={() => setShowUploadDialog(true)}
                                 >
@@ -669,8 +669,8 @@ ${s.content}
                                                     </div>
                                                 )}
                                                 <div className={`rounded-2xl p-4 max-w-[80%] ${msg.role === 'user'
-                                                        ? 'bg-primary text-white rounded-tr-none'
-                                                        : 'bg-white border rounded-tl-none shadow-sm'
+                                                    ? 'bg-primary text-white rounded-tr-none'
+                                                    : 'bg-white border rounded-tl-none shadow-sm'
                                                     }`}>
                                                     <p className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</p>
                                                     <p className="text-xs opacity-70 mt-1">
@@ -710,7 +710,7 @@ ${s.content}
                                             Voice
                                         </Button>
                                     </div>
-                                    <Textarea 
+                                    <Textarea
                                         placeholder="Write your notes here..."
                                         className="flex-1 resize-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                         defaultValue={sources.map(s => s.content).join('\n\n')}
@@ -719,32 +719,32 @@ ${s.content}
                                 <TabsContent value="tools" className="flex-1 flex flex-col p-4 gap-4">
                                     <h3 className="font-semibold">AI Tools</h3>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="h-auto py-4 flex flex-col items-center gap-2"
                                             onClick={() => handleGenerateStudyGuide('selected sources')}
                                         >
                                             <GraduationCap className="h-5 w-5" />
                                             <span>Study Guide</span>
                                         </Button>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="h-auto py-4 flex flex-col items-center gap-2"
                                             onClick={handleGenerateFlashcards}
                                         >
                                             <Brain className="h-5 w-5" />
                                             <span>Flashcards</span>
                                         </Button>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="h-auto py-4 flex flex-col items-center gap-2"
                                             onClick={handleGenerateQuiz}
                                         >
                                             <Target className="h-5 w-5" />
                                             <span>Quiz</span>
                                         </Button>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             className="h-auto py-4 flex flex-col items-center gap-2"
                                             onClick={handleGenerateAudio}
                                         >
@@ -755,8 +755,8 @@ ${s.content}
                                     <div className="mt-4">
                                         <h4 className="font-medium mb-2">Quick Actions</h4>
                                         <div className="flex flex-wrap gap-2">
-                                            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSources(prev => prev.map(s => ({...s, selected: true})))}>Select All</Badge>
-                                            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSources(prev => prev.map(s => ({...s, selected: false})))}>Deselect All</Badge>
+                                            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSources(prev => prev.map(s => ({ ...s, selected: true })))}>Select All</Badge>
+                                            <Badge variant="secondary" className="cursor-pointer" onClick={() => setSources(prev => prev.map(s => ({ ...s, selected: false })))}>Deselect All</Badge>
                                             <Badge variant="secondary" className="cursor-pointer" onClick={() => handleCopyToClipboard(sources.filter(s => s.selected).map(s => s.content).join('\n\n'))}>Copy Selected</Badge>
                                         </div>
                                     </div>
@@ -766,6 +766,6 @@ ${s.content}
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </div>
     );
 }

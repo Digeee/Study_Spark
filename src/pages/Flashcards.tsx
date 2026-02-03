@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AppLayout } from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,14 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useDocuments } from '@/hooks/useDocuments';
-import { generateFlashcardsFromDocument } from '@/integrations/ai/gemini';
-import { 
-  BookOpen, 
-  Plus, 
-  RotateCw, 
-  Eye, 
-  EyeOff, 
-  ThumbsUp, 
+import {
+  BookOpen,
+  Plus,
+  RotateCw,
+  Eye,
+  EyeOff,
+  ThumbsUp,
   ThumbsDown,
   BarChart3,
   Sparkles,
@@ -26,19 +24,19 @@ import {
 import { toast } from '@/hooks/use-toast';
 
 export default function Flashcards() {
-  const { 
-    flashcards, 
-    currentCardIndex, 
-    showAnswer, 
-    addFlashcard, 
-    removeFlashcard, 
-    flipCard, 
-    nextCard, 
-    rateCard, 
-    getCurrentCard, 
-    getStats 
+  const {
+    flashcards,
+    currentCardIndex,
+    showAnswer,
+    addFlashcard,
+    removeFlashcard,
+    flipCard,
+    nextCard,
+    rateCard,
+    getCurrentCard,
+    getStats
   } = useFlashcards();
-  
+
   const { documents, generateFlashcards: generateFromDoc } = useDocuments();
   const [isCreating, setIsCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -98,9 +96,9 @@ export default function Flashcards() {
 
     try {
       setIsGenerating(true);
-      
+
       const generatedCards = await generateFromDoc(document.id, 5);
-      
+
       generatedCards.forEach((card: any) => {
         addFlashcard({
           front: card.front,
@@ -109,12 +107,12 @@ export default function Flashcards() {
           difficulty: card.difficulty || 'medium'
         });
       });
-      
+
       toast({
         title: "Flashcards Generated",
         description: `Created ${generatedCards.length} flashcards from ${document.name}`
       });
-      
+
     } catch (error) {
       toast({
         title: "Generation Failed",
@@ -136,10 +134,10 @@ export default function Flashcards() {
   };
 
   return (
-    <AppLayout>
+    <div className="w-full">
       <div className="container mx-auto py-8">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
@@ -153,8 +151,8 @@ export default function Flashcards() {
               Study smarter with AI-powered spaced repetition
             </p>
           </div>
-          
-          <Button 
+
+          <Button
             onClick={() => setIsCreating(!isCreating)}
             className="gradient-primary text-white"
           >
@@ -164,7 +162,7 @@ export default function Flashcards() {
         </motion.div>
 
         {/* Stats */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
@@ -175,21 +173,21 @@ export default function Flashcards() {
               <p className="text-sm text-muted-foreground">Total Cards</p>
             </CardContent>
           </Card>
-          
+
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">{stats.due}</p>
               <p className="text-sm text-muted-foreground">Due Today</p>
             </CardContent>
           </Card>
-          
+
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">{stats.new}</p>
               <p className="text-sm text-muted-foreground">New Cards</p>
             </CardContent>
           </Card>
-          
+
           <Card className="glass-card">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-bold">{stats.mastered}</p>
@@ -200,7 +198,7 @@ export default function Flashcards() {
 
         {/* Create Form */}
         {isCreating && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
@@ -216,7 +214,7 @@ export default function Flashcards() {
                     <Textarea
                       placeholder="Enter the term, question, or concept"
                       value={createForm.front}
-                      onChange={(e) => setCreateForm({...createForm, front: e.target.value})}
+                      onChange={(e) => setCreateForm({ ...createForm, front: e.target.value })}
                       className="glass-input mt-1"
                       rows={3}
                     />
@@ -226,28 +224,28 @@ export default function Flashcards() {
                     <Textarea
                       placeholder="Enter the definition, answer, or explanation"
                       value={createForm.back}
-                      onChange={(e) => setCreateForm({...createForm, back: e.target.value})}
+                      onChange={(e) => setCreateForm({ ...createForm, back: e.target.value })}
                       className="glass-input mt-1"
                       rows={3}
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label>Subject</Label>
                     <Input
                       placeholder="e.g., Biology, History, Mathematics"
                       value={createForm.subject}
-                      onChange={(e) => setCreateForm({...createForm, subject: e.target.value})}
+                      onChange={(e) => setCreateForm({ ...createForm, subject: e.target.value })}
                       className="glass-input mt-1"
                     />
                   </div>
                   <div>
                     <Label>Difficulty</Label>
-                    <Select 
-                      value={createForm.difficulty} 
-                      onValueChange={(value: any) => setCreateForm({...createForm, difficulty: value})}
+                    <Select
+                      value={createForm.difficulty}
+                      onValueChange={(value: any) => setCreateForm({ ...createForm, difficulty: value })}
                     >
                       <SelectTrigger className="glass-input mt-1">
                         <SelectValue />
@@ -260,16 +258,16 @@ export default function Flashcards() {
                     </Select>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <Button 
+                  <Button
                     onClick={handleCreateFlashcard}
                     className="gradient-primary text-white"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Flashcard
                   </Button>
-                  
+
                   <div className="flex-1">
                     <Label>Or generate from document</Label>
                     <div className="flex gap-2 mt-1">
@@ -285,7 +283,7 @@ export default function Flashcards() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button 
+                      <Button
                         onClick={generateFromDocument}
                         disabled={isGenerating || !selectedDocument}
                         variant="outline"
@@ -309,7 +307,7 @@ export default function Flashcards() {
           {/* Main Flashcard */}
           <div className="lg:col-span-2">
             {flashcards.length === 0 ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-center py-16"
@@ -345,9 +343,9 @@ export default function Flashcards() {
                       <CardDescription>{currentCard.subject}</CardDescription>
                     )}
                   </CardHeader>
-                  
+
                   <CardContent className="flex-1 flex flex-col items-center justify-center p-8">
-                    <div 
+                    <div
                       className="w-full max-w-md h-64 flex items-center justify-center cursor-pointer group"
                       onClick={flipCard}
                     >
@@ -365,13 +363,13 @@ export default function Flashcards() {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                       <Eye className="h-4 w-4" />
                       Click card to flip
                     </div>
                   </CardContent>
-                  
+
                   {/* Rating Buttons */}
                   {showAnswer && (
                     <div className="p-4 border-t flex justify-center gap-3">
@@ -422,7 +420,7 @@ export default function Flashcards() {
                 <CardTitle>Study Controls</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
+                <Button
                   onClick={flipCard}
                   disabled={!currentCard}
                   className="w-full"
@@ -440,8 +438,8 @@ export default function Flashcards() {
                     </>
                   )}
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={nextCard}
                   disabled={!currentCard}
                   className="w-full gradient-primary text-white"
@@ -467,8 +465,8 @@ export default function Flashcards() {
                       <span>{currentCardIndex + 1}/{flashcards.length}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300" 
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
                         style={{ width: `${((currentCardIndex + 1) / flashcards.length) * 100}%` }}
                       />
                     </div>
@@ -479,6 +477,6 @@ export default function Flashcards() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }

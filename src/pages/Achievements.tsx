@@ -1,7 +1,7 @@
 import { useStudySessions } from "@/hooks/useStudySessions";
 import { usePomodoroSessions } from "@/hooks/usePomodoroSessions";
 import { getUserStats, getWeeklyStats } from "@/lib/calculations";
-import { AppLayout } from "@/components/AppLayout";
+
 import { BadgeGrid } from "@/components/BadgeGrid";
 import { LevelProgress } from "@/components/LevelProgress";
 import { StreakBadge } from "@/components/StreakBadge";
@@ -17,13 +17,15 @@ export default function Achievements() {
 
   if (isLoading) {
     return (
-      <AppLayout>
+      <div className="w-full">
+
         <div className="space-y-6">
           <Skeleton className="h-32 rounded-lg" />
           <Skeleton className="h-48 rounded-lg" />
           <Skeleton className="h-64 rounded-lg" />
         </div>
-      </AppLayout>
+      </div>
+
     );
   }
 
@@ -34,7 +36,7 @@ export default function Achievements() {
   // Generate streak calendar data (last 30 days)
   const streakCalendarData: { date: string; hasStudy: boolean; minutes: number }[] = [];
   const studyDates = new Set(sessions.map((s) => s.study_date));
-  
+
   for (let i = 29; i >= 0; i--) {
     const date = format(subDays(new Date(), i), "yyyy-MM-dd");
     const dayMinutes = sessions
@@ -63,7 +65,8 @@ export default function Achievements() {
   const bestDay = Object.entries(dayStudy).sort((a, b) => b[1] - a[1])[0]?.[0] || "No data";
 
   return (
-    <AppLayout>
+    <div className="w-full">
+
       <div className="space-y-6">
         {/* Header */}
         <div className="text-center">
@@ -119,8 +122,8 @@ export default function Achievements() {
           <CardContent>
             <div className="flex flex-wrap gap-1">
               {streakCalendarData.map((day) => {
-                const intensity = day.minutes > 0 
-                  ? Math.min(1, day.minutes / 120) 
+                const intensity = day.minutes > 0
+                  ? Math.min(1, day.minutes / 120)
                   : 0;
                 return (
                   <div
@@ -211,6 +214,7 @@ export default function Achievements() {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </div>
+
   );
 }

@@ -1,9 +1,10 @@
-import { AppLayout } from "@/components/AppLayout";
 import { StudyForm } from "@/components/StudyForm";
+
 
 export default function AddStudy() {
   return (
-    <AppLayout>
+    <div className="w-full">
+
       <div className="mx-auto max-w-lg">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">
@@ -15,6 +16,7 @@ export default function AddStudy() {
         </div>
         <StudyForm />
       </div>
-    </AppLayout>
+    </div>
+
   );
 }
